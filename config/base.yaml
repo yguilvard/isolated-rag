@@ -1,0 +1,11 @@
+ingestion:
+  embedding_model: nomic-embed-text
+  chunk_sentences: 5
+  ollama_url: http://localhost:11434
+
+database:
+  host: localhost
+  port: 5432
+  name: rag_db
+  user: rag
+  password: ""
