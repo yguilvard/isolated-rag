@@ -212,3 +212,6 @@ CLAUDE.md
 # Docker local state
 deployment/docker/.env
 deployment/docker/data/
+
+# docs -> documentation
+docs/
