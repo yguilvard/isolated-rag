@@ -12,3 +12,14 @@ services:
       timeout: 5s
       retries: 5
     restart: unless-stopped
+
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    profiles: [pgadmin]
+    env_file: .env
+    ports:
+      - "${PGADMIN_PORT:-5050}:80"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
