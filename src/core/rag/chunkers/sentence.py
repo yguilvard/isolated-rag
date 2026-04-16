@@ -13,6 +13,11 @@ class SentenceChunker:
     """Splits documents into chunks of N consecutive sentences."""
 
     def __init__(self, chunk_sentences: int = 5) -> None:
+        """Initialize a SentenceChunker.
+
+        Args:
+            chunk_sentences: Number of sentences to include in each chunk.
+        """
         self._chunk_sentences = chunk_sentences
 
     def chunk(self, document: Document) -> list[Chunk]:
