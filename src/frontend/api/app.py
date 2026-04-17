@@ -116,13 +116,22 @@ def create_app(lifespan: Callable | None = None) -> FastAPI:
     Returns:
         Configured FastAPI application instance.
     """
+    from pathlib import Path
+
+    from fastapi.staticfiles import StaticFiles
     from src.frontend.api.routers import auth as auth_router
     from src.frontend.api.routers import ingest as ingest_router
 
     # Use the provided lifespan or the production one
     actual_lifespan = lifespan if lifespan is not None else _lifespan
     app = FastAPI(title="isolated-rag API", lifespan=actual_lifespan)
-    # Register routers
+    # Register API routers before static files so API routes take precedence
     app.include_router(auth_router.router)
     app.include_router(ingest_router.router)
+
+    # Serve the built SPA — only if dist/ exists (skipped in Vite dev mode)
+    _web_dist = Path(__file__).parent.parent / "web" / "dist"
+    if _web_dist.exists():
+        app.mount("/", StaticFiles(directory=_web_dist, html=True), name="spa")
+
     return app

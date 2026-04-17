@@ -1,6 +1,6 @@
 COMPOSE = docker compose -f deployment/docker/compose.yaml
 
-.PHONY: help install lint format test ingest serve up up-pgadmin down down-pgadmin
+.PHONY: help install lint format test ingest serve build-web dev up up-pgadmin down down-pgadmin
 
 help:
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | \
@@ -23,6 +23,12 @@ ingest: ## Ingest a document: make ingest FILE=path/to/doc.pdf
 
 serve: ## Start API server (http://localhost:8000)
 	uv run python -m src.frontend.api
+
+build-web: ## Build the React SPA into src/frontend/web/dist/
+	cd src/frontend/web && npm run build
+
+dev: ## Start API server + Vite dev server concurrently
+	uv run python -m src.frontend.api & cd src/frontend/web && npm run dev
 
 up: ## Start postgres
 	$(COMPOSE) up -d
