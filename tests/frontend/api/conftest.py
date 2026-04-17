@@ -4,20 +4,23 @@ from unittest.mock import AsyncMock, MagicMock
 from uuid import uuid4
 
 import pytest
+from fastapi import FastAPI
 from httpx import ASGITransport, AsyncClient
 
 from src.frontend.api.app import create_app
+# Re-exported so router test files can override these deps without importing deps directly
 from src.frontend.api.deps import get_auth_service, get_current_user, get_db_conn, get_ingest_service  # noqa: F401
 from src.frontend.api.schemas import UserClaims
 
 
 @asynccontextmanager
-async def _noop_lifespan(app):  # type: ignore[no-untyped-def]
+async def _noop_lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     yield
 
 
 @pytest.fixture
 def mock_conn():
+    """Asyncpg connection mock with synchronous transaction() returning a context manager."""
     conn = AsyncMock()
     txn = MagicMock()
     txn.__aenter__ = AsyncMock(return_value=None)
@@ -28,11 +31,13 @@ def mock_conn():
 
 @pytest.fixture
 def admin_claims():
+    """UserClaims for an admin user."""
     return UserClaims(user_id=uuid4(), is_admin=True)
 
 
 @pytest.fixture
 def user_claims():
+    """UserClaims for a non-admin user."""
     return UserClaims(user_id=uuid4(), is_admin=False)
 
 
@@ -50,6 +55,7 @@ def app(mock_conn):
 
 @pytest.fixture
 async def client(app):
+    """httpx AsyncClient wired to the test FastAPI app."""
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as c:
