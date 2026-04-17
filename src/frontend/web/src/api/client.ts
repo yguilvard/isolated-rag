@@ -27,6 +27,9 @@ export async function ingest(
   form.append('visibility', visibility)
 
   const token = localStorage.getItem('token')
+  if (!token) {
+    throw new Error('Not authenticated')
+  }
   const res = await fetch('/ingest', {
     method: 'POST',
     headers: { Authorization: `Bearer ${token}` },
@@ -40,8 +43,14 @@ export async function ingest(
   }
 
   if (!res.ok) {
-    const err = await res.json()
-    throw new Error(err.detail ?? 'Upload failed')
+    let detail = 'Upload failed'
+    try {
+      const err = await res.json()
+      detail = err.detail ?? detail
+    } catch {
+      // non-JSON error body — keep default message
+    }
+    throw new Error(detail)
   }
 
   return res.json()

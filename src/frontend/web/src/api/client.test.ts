@@ -56,6 +56,12 @@ describe('ingest', () => {
     expect(localStorage.getItem('token')).toBeNull()
   })
 
+  it('throws "Not authenticated" when no token in storage', async () => {
+    // localStorage is cleared in beforeEach — no token set
+    const file = new File(['x'], 'f.txt')
+    await expect(ingest(file, 'private')).rejects.toThrow('Not authenticated')
+  })
+
   it('throws API error detail on 422', async () => {
     localStorage.setItem('token', 'tok')
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
