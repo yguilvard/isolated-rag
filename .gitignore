@@ -209,6 +209,9 @@ __marimo__/
 # Claude
 CLAUDE.md
 
+# Git worktrees
+.worktrees/
+
 # Docker local state
 deployment/docker/.env
 deployment/docker/data/
