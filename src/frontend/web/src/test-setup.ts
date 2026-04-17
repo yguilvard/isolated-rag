@@ -2,29 +2,28 @@
 // localStorage stub lacks the full Web Storage API (clear, key, etc.)
 const store: Record<string, string> = {}
 
-const localStorageMock: Storage = {
-  length: 0,
+const localStorageMock = {
+  get length() {
+    return Object.keys(store).length
+  },
   clear() {
     for (const key of Object.keys(store)) {
       delete store[key]
     }
-    this.length = 0
   },
   getItem(key: string) {
     return Object.prototype.hasOwnProperty.call(store, key) ? store[key] : null
   },
   setItem(key: string, value: string) {
     store[key] = String(value)
-    this.length = Object.keys(store).length
   },
   removeItem(key: string) {
     delete store[key]
-    this.length = Object.keys(store).length
   },
   key(index: number) {
     return Object.keys(store)[index] ?? null
   },
-}
+} as Storage
 
 Object.defineProperty(globalThis, 'localStorage', {
   value: localStorageMock,
