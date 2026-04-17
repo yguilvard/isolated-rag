@@ -1,6 +1,6 @@
 COMPOSE = docker compose -f deployment/docker/compose.yaml
 
-.PHONY: help install lint format test ingest up up-pgadmin down down-pgadmin
+.PHONY: help install lint format test ingest serve up up-pgadmin down down-pgadmin
 
 help:
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | \
@@ -20,6 +20,9 @@ test: ## Run tests
 
 ingest: ## Ingest a document: make ingest FILE=path/to/doc.pdf
 	uv run python -m src.frontend.cli $(FILE)
+
+serve: ## Start API server (http://localhost:8000)
+	uv run python -m src.frontend.api
 
 up: ## Start postgres
 	$(COMPOSE) up -d
