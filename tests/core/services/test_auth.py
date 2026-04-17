@@ -106,3 +106,11 @@ async def test_login_raises_when_user_not_found(service: AuthService) -> None:
     conn.fetchrow.return_value = None
     with pytest.raises(ValueError, match="Invalid credentials"):
         await service.login(conn, username="ghost", password="any")
+
+
+@pytest.mark.asyncio
+async def test_create_user_raises_when_insert_returns_none(service: AuthService) -> None:
+    conn = AsyncMock()
+    conn.fetchrow.return_value = None
+    with pytest.raises(RuntimeError, match="INSERT INTO users returned no record"):
+        await service.create_user(conn, username="alice", password="secret")
