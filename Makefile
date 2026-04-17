@@ -19,7 +19,7 @@ test: ## Run tests
 	uv run pytest
 
 ingest: ## Ingest a document: make ingest FILE=path/to/doc.pdf
-	uv run python -m src.frontend.cli ingest $(FILE)
+	uv run python -m src.frontend.cli $(FILE)
 
 up: ## Start postgres
 	$(COMPOSE) up -d
