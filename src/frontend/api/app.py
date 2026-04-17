@@ -37,6 +37,7 @@ DO $$ BEGIN
 END $$;
 
 ALTER TABLE embeddings ENABLE ROW LEVEL SECURITY;
+ALTER TABLE embeddings FORCE ROW LEVEL SECURITY;
 
 DO $$ BEGIN
   IF NOT EXISTS (
@@ -92,6 +93,9 @@ async def _run_migrations(conn: asyncpg.Connection, settings: Settings) -> None:
 async def _lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     """Create pool, run migrations, seed admin on startup; close pool on shutdown."""
     settings = Settings.from_yaml()
+    # Reject empty signing key before accepting any traffic
+    if not settings.api.secret_key.get_secret_value():
+        raise RuntimeError("api.secret_key must be set (use API__SECRET_KEY env var)")
     # Create the shared asyncpg connection pool
     app.state.pool = await asyncpg.create_pool(settings.database.dsn)
     async with app.state.pool.acquire() as conn:

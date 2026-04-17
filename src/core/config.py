@@ -41,6 +41,7 @@ class ApiSettings(BaseModel):
     port: int = 8000
 
 
+
 class Settings(BaseSettings):
     """Application settings loaded from YAML then overridden by env vars."""
 
