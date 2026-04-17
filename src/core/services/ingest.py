@@ -90,7 +90,7 @@ class IngestService:
         ]
 
         # Set RLS session variable inside a transaction (LOCAL scope) and save
-        async with await conn.transaction():
+        async with conn.transaction():
             await conn.execute(
                 "SELECT set_config('app.current_user_id', $1, true)", str(user_id)
             )
