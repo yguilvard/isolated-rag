@@ -216,5 +216,9 @@ CLAUDE.md
 deployment/docker/.env
 deployment/docker/data/
 
+# Node / SPA
+node_modules/
+src/frontend/web/dist/
+
 # docs -> documentation
 docs/
