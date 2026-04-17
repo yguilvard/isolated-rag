@@ -9,3 +9,10 @@ database:
   name: rag_db
   user: rag
   password: ""
+
+api:
+  secret_key: ""          # set via API__SECRET_KEY env var
+  algorithm: HS256
+  token_expire_minutes: 60
+  host: 0.0.0.0
+  port: 8000
