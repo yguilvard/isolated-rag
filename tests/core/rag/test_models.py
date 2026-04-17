@@ -1,5 +1,8 @@
 from pathlib import Path
-from uuid import UUID, uuid4
+from uuid import uuid4
+
+import pytest
+from pydantic import ValidationError
 
 from src.core.rag.models import Chunk, Document, Embedding
 
@@ -39,3 +42,9 @@ def test_embedding_accepts_owner_id_and_public_visibility():
     emb = Embedding(chunk=chunk, vector=[0.1], model="m", owner_id=uid, visibility="public")
     assert emb.owner_id == uid
     assert emb.visibility == "public"
+
+
+def test_embedding_rejects_invalid_visibility():
+    chunk = Chunk(document_path=Path("f.txt"), index=0, content="hi")
+    with pytest.raises(ValidationError):
+        Embedding(chunk=chunk, vector=[0.1], model="m", visibility="internal")
