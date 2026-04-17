@@ -13,7 +13,7 @@ from src.core.services.auth import AuthService
 @pytest.fixture
 def settings() -> ApiSettings:
     return ApiSettings(
-        secret_key=SecretStr("test-secret-key-long-enough"),
+        secret_key=SecretStr("test-secret-key-long-enough-xxxxx"),  # 32+ bytes for HS256
         algorithm="HS256",
         token_expire_minutes=60,
     )
@@ -60,6 +60,7 @@ def test_decode_token_returns_payload(service: AuthService) -> None:
     assert payload["is_admin"] is False
 
 
+@pytest.mark.asyncio
 async def test_create_user_calls_insert_and_returns_record(service: AuthService) -> None:
     uid = uuid4()
     conn = AsyncMock()
@@ -78,6 +79,7 @@ async def test_create_user_calls_insert_and_returns_record(service: AuthService)
     assert "INSERT INTO users" in sql
 
 
+@pytest.mark.asyncio
 async def test_login_returns_token_on_valid_credentials(service: AuthService) -> None:
     uid = uuid4()
     conn = AsyncMock()
@@ -89,6 +91,7 @@ async def test_login_returns_token_on_valid_credentials(service: AuthService) ->
     assert payload["sub"] == str(uid)
 
 
+@pytest.mark.asyncio
 async def test_login_raises_on_wrong_password(service: AuthService) -> None:
     conn = AsyncMock()
     hashed = service.hash_password("correct")
@@ -97,6 +100,7 @@ async def test_login_raises_on_wrong_password(service: AuthService) -> None:
         await service.login(conn, username="alice", password="wrong")
 
 
+@pytest.mark.asyncio
 async def test_login_raises_when_user_not_found(service: AuthService) -> None:
     conn = AsyncMock()
     conn.fetchrow.return_value = None

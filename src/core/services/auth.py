@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta, timezone
+from typing import Any
 from uuid import UUID
 
 import asyncpg
@@ -68,7 +69,7 @@ class AuthService:
             algorithm=self._settings.algorithm,
         )
 
-    def decode_token(self, token: str) -> dict:
+    def decode_token(self, token: str) -> dict[str, Any]:
         """Decode and verify a JWT.
 
         Args:
@@ -94,7 +95,7 @@ class AuthService:
         username: str,
         password: str,
         is_admin: bool = False,
-    ) -> dict:
+    ) -> dict[str, Any]:
         """Insert a new user into the database.
 
         Args:
@@ -116,6 +117,8 @@ class AuthService:
             password_hash,
             is_admin,
         )
+        if row is None:
+            raise RuntimeError("INSERT INTO users returned no record")
         logger.info("user_created", username=username, is_admin=is_admin)
         return dict(row)
 
