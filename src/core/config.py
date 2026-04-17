@@ -31,6 +31,16 @@ class DatabaseSettings(BaseModel):
         )
 
 
+class ApiSettings(BaseModel):
+    """FastAPI server configuration."""
+
+    secret_key: SecretStr = SecretStr("")
+    algorithm: str = "HS256"
+    token_expire_minutes: int = 60
+    host: str = "0.0.0.0"
+    port: int = 8000
+
+
 class Settings(BaseSettings):
     """Application settings loaded from YAML then overridden by env vars."""
 
@@ -38,6 +48,7 @@ class Settings(BaseSettings):
 
     ingestion: IngestionSettings = IngestionSettings()
     database: DatabaseSettings = DatabaseSettings()
+    api: ApiSettings = ApiSettings()
 
     @classmethod
     def from_yaml(cls, path: Path = Path("config/base.yaml")) -> "Settings":
