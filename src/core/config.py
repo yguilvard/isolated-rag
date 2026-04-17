@@ -1,7 +1,7 @@
 from pathlib import Path
 
 import yaml
-from pydantic import BaseModel
+from pydantic import BaseModel, SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -20,13 +20,13 @@ class DatabaseSettings(BaseModel):
     port: int = 5432
     name: str = "rag_db"
     user: str = "rag"
-    password: str = ""
+    password: SecretStr = SecretStr("")
 
     @property
     def dsn(self) -> str:
         """Build asyncpg DSN string."""
         return (
-            f"postgresql://{self.user}:{self.password}"
+            f"postgresql://{self.user}:{self.password.get_secret_value()}"
             f"@{self.host}:{self.port}/{self.name}"
         )
 
