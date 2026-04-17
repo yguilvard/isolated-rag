@@ -1,6 +1,8 @@
 from pathlib import Path
 from typing import Protocol
 
+import asyncpg
+
 from src.core.rag.models import Chunk, Document, Embedding
 
 
@@ -27,4 +29,8 @@ class Store(Protocol):
 
     async def setup(self) -> None: ...
 
-    async def save(self, embeddings: list[Embedding]) -> None: ...
+    async def save(
+        self,
+        embeddings: list[Embedding],
+        conn: asyncpg.Connection | None = None,
+    ) -> None: ...

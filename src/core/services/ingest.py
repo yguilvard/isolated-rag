@@ -8,8 +8,7 @@ import structlog
 from src.core.rag.loaders.pdf import PDFLoader
 from src.core.rag.loaders.text import TextLoader
 from src.core.rag.models import Embedding
-from src.core.rag.protocols import Chunker, Embedder
-from src.core.rag.store.pgvector import PgVectorStore
+from src.core.rag.protocols import Chunker, Embedder, Store
 
 logger = structlog.get_logger()
 
@@ -27,14 +26,14 @@ class IngestService:
         self,
         chunker: Chunker,
         embedder: Embedder,
-        store: PgVectorStore,
+        store: Store,
     ) -> None:
         """Initialize with pipeline components.
 
         Args:
             chunker: Splits documents into chunks.
             embedder: Embeds chunks into vectors.
-            store: Persists embeddings to pgvector.
+            store: Persists embeddings (any Store protocol implementer).
         """
         self._chunker = chunker
         self._embedder = embedder
