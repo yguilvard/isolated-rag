@@ -1,13 +1,18 @@
 import pytest
 from pathlib import Path
+from typing import Literal
 from unittest.mock import AsyncMock, patch
-from uuid import uuid4
+from uuid import UUID, uuid4
 
 from src.core.rag.models import Chunk, Embedding
 from src.core.rag.store.pgvector import PgVectorStore
 
 
-def _embedding(index: int = 0, owner_id=None, visibility="private") -> Embedding:
+def _embedding(
+    index: int = 0,
+    owner_id: UUID | None = None,
+    visibility: Literal["private", "public"] = "private",
+) -> Embedding:
     chunk = Chunk(document_path=Path("f.txt"), index=index, content=f"text {index}")
     return Embedding(
         chunk=chunk,

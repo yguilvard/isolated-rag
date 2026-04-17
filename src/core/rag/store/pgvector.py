@@ -21,6 +21,9 @@ _CREATE_TABLE = """
 """
 
 # Adds owner/visibility columns without FK (FK added later by API migration).
+# Both ADD COLUMN clauses use IF NOT EXISTS, making this statement idempotent:
+# when a column already exists the clause becomes a no-op and the inline CHECK
+# constraint is not re-evaluated. Safe to call on every startup.
 _ALTER_EMBEDDINGS_OWNER = """
     ALTER TABLE embeddings
         ADD COLUMN IF NOT EXISTS owner_id   UUID,
