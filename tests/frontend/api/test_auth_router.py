@@ -3,8 +3,7 @@ from datetime import datetime, timezone
 from unittest.mock import AsyncMock, MagicMock
 from uuid import uuid4
 
-from src.frontend.api.deps import get_auth_service, get_current_user, require_admin
-from src.frontend.api.schemas import UserClaims
+from src.frontend.api.deps import get_auth_service, get_current_user
 
 
 @pytest.fixture
