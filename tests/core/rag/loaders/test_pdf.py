@@ -5,13 +5,18 @@ from unittest.mock import MagicMock, patch
 from src.core.rag.loaders.pdf import PDFLoader
 
 
-def test_loads_pdf_content(tmp_path: Path):
-    mock_page = MagicMock()
-    mock_page.extract_text.return_value = "Page one text."
-    mock_reader = MagicMock()
-    mock_reader.pages = [mock_page]
+def _lc_page(text: str) -> MagicMock:
+    """Return a mock LangChain Document with .page_content set."""
+    page = MagicMock()
+    page.page_content = text
+    return page
 
-    with patch("src.core.rag.loaders.pdf.PdfReader", return_value=mock_reader):
+
+def test_loads_pdf_content(tmp_path: Path):
+    mock_loader = MagicMock()
+    mock_loader.load.return_value = [_lc_page("Page one text.")]
+
+    with patch("src.core.rag.loaders.pdf.PyPDFLoader", return_value=mock_loader):
         f = tmp_path / "doc.pdf"
         f.write_bytes(b"%PDF fake")
         loader = PDFLoader()
@@ -23,20 +28,18 @@ def test_loads_pdf_content(tmp_path: Path):
 
 
 def test_joins_multiple_pages(tmp_path: Path):
-    page1 = MagicMock()
-    page1.extract_text.return_value = "First."
-    page2 = MagicMock()
-    page2.extract_text.return_value = "Second."
-    mock_reader = MagicMock()
-    mock_reader.pages = [page1, page2]
+    mock_loader = MagicMock()
+    mock_loader.load.return_value = [_lc_page("First."), _lc_page("Second.")]
 
-    with patch("src.core.rag.loaders.pdf.PdfReader", return_value=mock_reader):
+    with patch("src.core.rag.loaders.pdf.PyPDFLoader", return_value=mock_loader):
         f = tmp_path / "doc.pdf"
         f.write_bytes(b"%PDF fake")
         loader = PDFLoader()
         doc = loader.load(f)
 
-    assert doc.content == "First.\nSecond."
+    # Pages are separated by a blank line (paragraph break) so NLTK
+    # can detect sentence boundaries across pages
+    assert doc.content == "First.\n\nSecond."
 
 
 def test_raises_on_unsupported_extension(tmp_path: Path):

@@ -116,15 +116,27 @@ def create_app(lifespan: Callable | None = None) -> FastAPI:
     Returns:
         Configured FastAPI application instance.
     """
+    import importlib.metadata
     from pathlib import Path
 
     from fastapi.staticfiles import StaticFiles
     from src.frontend.api.routers import auth as auth_router
     from src.frontend.api.routers import ingest as ingest_router
+    from src.frontend.api.schemas import InfoResponse
 
     # Use the provided lifespan or the production one
     actual_lifespan = lifespan if lifespan is not None else _lifespan
     app = FastAPI(title="isolated-rag API", lifespan=actual_lifespan)
+
+    @app.get("/info", response_model=InfoResponse)
+    def get_info() -> InfoResponse:
+        """Return application version and active embedding model."""
+        settings = Settings.from_yaml()
+        return InfoResponse(
+            version=importlib.metadata.version("isolated-rag"),
+            embedding_model=settings.ingestion.embedding_model,
+        )
+
     # Register API routers before static files so API routes take precedence
     app.include_router(auth_router.router)
     app.include_router(ingest_router.router)

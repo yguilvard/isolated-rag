@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { ingest, type IngestResult } from '../api/client'
 import styles from './Upload.module.css'
 
@@ -7,12 +7,25 @@ interface Props {
   onSessionExpired: () => void
 }
 
+interface AppInfo {
+  version: string
+  embedding_model: string
+}
+
 export default function Upload({ onLogout, onSessionExpired }: Props) {
   const [file, setFile] = useState<File | null>(null)
   const [visibility, setVisibility] = useState<'private' | 'public'>('private')
   const [loading, setLoading] = useState(false)
   const [result, setResult] = useState<IngestResult | null>(null)
   const [error, setError] = useState('')
+  const [info, setInfo] = useState<AppInfo | null>(null)
+
+  useEffect(() => {
+    fetch('/info')
+      .then(r => r.json())
+      .then((data: AppInfo) => setInfo(data))
+      .catch(() => { /* non-critical, header degrades gracefully */ })
+  }, [])
 
   async function handleSubmit(e: React.FormEvent): Promise<void> {
     e.preventDefault()
@@ -38,10 +51,20 @@ export default function Upload({ onLogout, onSessionExpired }: Props) {
   return (
     <div className={styles.container}>
       <header className={styles.header}>
-        <span className={styles.title}>isolated-rag</span>
-        <button className={styles.logoutBtn} type="button" onClick={onLogout}>
-          Log out
-        </button>
+        <div className={styles.headerLeft}>
+          <span className={styles.title}>isolated-rag</span>
+          {info && <span className={styles.version}>v{info.version}</span>}
+        </div>
+        <div className={styles.headerRight}>
+          {info && (
+            <span className={styles.modelBadge} title="Embedding model">
+              {info.embedding_model}
+            </span>
+          )}
+          <button className={styles.logoutBtn} type="button" onClick={onLogout}>
+            Log out
+          </button>
+        </div>
       </header>
 
       <main className={styles.main}>

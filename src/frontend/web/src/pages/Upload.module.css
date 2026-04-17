@@ -14,10 +14,39 @@
   border-bottom: 1px solid #e5e7eb;
 }
 
+.headerLeft {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+
+.headerRight {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
 .title {
   font-size: 1rem;
   font-weight: 600;
   color: #111;
+}
+
+.version {
+  font-size: 0.75rem;
+  color: #9ca3af;
+  font-weight: 400;
+}
+
+.modelBadge {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #2563eb;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  border-radius: 999px;
+  padding: 0.2rem 0.65rem;
+  white-space: nowrap;
 }
 
 .logoutBtn {

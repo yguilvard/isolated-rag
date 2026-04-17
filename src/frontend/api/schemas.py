@@ -41,3 +41,10 @@ class IngestResponse(BaseModel):
     status: str
     chunks_ingested: int
     document: str
+
+
+class InfoResponse(BaseModel):
+    """Application metadata exposed to the frontend."""
+
+    version: str
+    embedding_model: str

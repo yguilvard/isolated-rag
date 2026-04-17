@@ -12,16 +12,12 @@ def _chunk(index: int = 0) -> Chunk:
 
 @pytest.mark.asyncio
 async def test_returns_embedding_per_chunk():
-    mock_response = MagicMock()
-    mock_response.raise_for_status = MagicMock()
-    mock_response.json.return_value = {"embedding": [0.1, 0.2, 0.3]}
+    with patch("src.core.rag.embedders.ollama.OllamaEmbeddings") as MockOllamaEmbeddings:
+        mock_instance = MockOllamaEmbeddings.return_value
+        mock_instance.aembed_documents = AsyncMock(
+            return_value=[[0.1, 0.2, 0.3], [0.4, 0.5, 0.6]]
+        )
 
-    mock_client = AsyncMock()
-    mock_client.__aenter__ = AsyncMock(return_value=mock_client)
-    mock_client.__aexit__ = AsyncMock(return_value=False)
-    mock_client.post = AsyncMock(return_value=mock_response)
-
-    with patch("src.core.rag.embedders.ollama.httpx.AsyncClient", return_value=mock_client):
         embedder = OllamaEmbedder(model="nomic-embed-text", base_url="http://localhost:11434")
         embeddings = await embedder.embed([_chunk(0), _chunk(1)])
 
@@ -29,25 +25,30 @@ async def test_returns_embedding_per_chunk():
     assert embeddings[0].vector == [0.1, 0.2, 0.3]
     assert embeddings[0].model == "nomic-embed-text"
     assert embeddings[0].chunk.index == 0
+    assert embeddings[1].vector == [0.4, 0.5, 0.6]
+    assert embeddings[1].chunk.index == 1
 
 
 @pytest.mark.asyncio
-async def test_posts_to_correct_url():
-    mock_response = MagicMock()
-    mock_response.raise_for_status = MagicMock()
-    mock_response.json.return_value = {"embedding": [0.1]}
+async def test_passes_texts_to_embed_documents():
+    with patch("src.core.rag.embedders.ollama.OllamaEmbeddings") as MockOllamaEmbeddings:
+        mock_instance = MockOllamaEmbeddings.return_value
+        mock_instance.aembed_documents = AsyncMock(return_value=[[0.1]])
 
-    mock_client = AsyncMock()
-    mock_client.__aenter__ = AsyncMock(return_value=mock_client)
-    mock_client.__aexit__ = AsyncMock(return_value=False)
-    mock_client.post = AsyncMock(return_value=mock_response)
-
-    with patch("src.core.rag.embedders.ollama.httpx.AsyncClient", return_value=mock_client):
         embedder = OllamaEmbedder(model="nomic-embed-text", base_url="http://localhost:11434")
-        await embedder.embed([_chunk()])
+        await embedder.embed([_chunk(0)])
 
-    mock_client.post.assert_called_once_with(
-        "http://localhost:11434/api/embeddings",
-        json={"model": "nomic-embed-text", "prompt": "sentence 0"},
-        timeout=60.0,
-    )
+        mock_instance.aembed_documents.assert_called_once_with(["sentence 0"])
+
+
+@pytest.mark.asyncio
+async def test_instantiates_with_correct_model_and_url():
+    with patch("src.core.rag.embedders.ollama.OllamaEmbeddings") as MockOllamaEmbeddings:
+        mock_instance = MockOllamaEmbeddings.return_value
+        mock_instance.aembed_documents = AsyncMock(return_value=[[0.1]])
+
+        OllamaEmbedder(model="nomic-embed-text", base_url="http://localhost:11434")
+
+        MockOllamaEmbeddings.assert_called_once_with(
+            model="nomic-embed-text", base_url="http://localhost:11434"
+        )
