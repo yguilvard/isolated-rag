@@ -45,12 +45,12 @@ async def ingest(
     filename = file.filename or "upload"
     suffix = Path(filename).suffix.lower()
 
-    # Write upload to a temp file so existing loaders can read from Path
     with tempfile.NamedTemporaryFile(suffix=suffix, delete=False) as tmp:
         tmp_path = Path(tmp.name)
-    tmp_path.write_bytes(await file.read())
 
     try:
+        # Write upload to a temp file so existing loaders can read from Path
+        tmp_path.write_bytes(await file.read())
         # Run the ingestion pipeline with RLS context
         chunks_ingested = await service.run(
             tmp_path,
