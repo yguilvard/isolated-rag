@@ -1,4 +1,6 @@
 from pathlib import Path
+from typing import Literal
+from uuid import UUID
 
 from pydantic import BaseModel
 
@@ -20,8 +22,10 @@ class Chunk(BaseModel):
 
 
 class Embedding(BaseModel):
-    """A chunk paired with its embedding vector."""
+    """A chunk paired with its embedding vector and ownership metadata."""
 
     chunk: Chunk
     vector: list[float]
     model: str
+    owner_id: UUID | None = None
+    visibility: Literal["private", "public"] = "private"
