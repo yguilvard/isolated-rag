@@ -1,0 +1,136 @@
+.container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: #f5f5f5;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1.5rem;
+  background: #fff;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #111;
+}
+
+.logoutBtn {
+  font-size: 0.875rem;
+  color: #6b7280;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  transition: color 0.15s;
+}
+
+.logoutBtn:hover {
+  color: #111;
+}
+
+.main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+}
+
+.form {
+  background: #fff;
+  border-radius: 8px;
+  padding: 2rem;
+  width: 100%;
+  max-width: 480px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.fileArea {
+  border: 2px dashed #d1d5db;
+  border-radius: 6px;
+  padding: 1.5rem;
+  text-align: center;
+}
+
+.hint {
+  margin: 0.5rem 0 0;
+  font-size: 0.75rem;
+  color: #9ca3af;
+}
+
+.toggle {
+  display: flex;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  overflow: hidden;
+  align-self: flex-start;
+}
+
+.activeToggle {
+  padding: 0.5rem 1.25rem;
+  border: none;
+  background: #2563eb;
+  color: #fff;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.inactiveToggle {
+  padding: 0.5rem 1.25rem;
+  border: none;
+  background: #fff;
+  color: #374151;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.inactiveToggle:hover {
+  background: #f3f4f6;
+}
+
+.submitBtn {
+  padding: 0.625rem;
+  background: #2563eb;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.submitBtn:hover:not(:disabled) {
+  background: #1d4ed8;
+}
+
+.submitBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.success {
+  margin-top: 1.25rem;
+  color: #16a34a;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.error {
+  margin-top: 1.25rem;
+  color: #dc2626;
+  font-size: 0.875rem;
+}
