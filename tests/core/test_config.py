@@ -1,7 +1,5 @@
 from pathlib import Path
 
-from pydantic import SecretStr
-
 from src.core.config import ApiSettings, Settings
 
 
