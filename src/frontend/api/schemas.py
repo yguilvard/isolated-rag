@@ -1,7 +1,7 @@
 from datetime import datetime
 from uuid import UUID
 
-from pydantic import BaseModel
+from pydantic import BaseModel, SecretStr
 
 
 class TokenResponse(BaseModel):
@@ -22,7 +22,7 @@ class CreateUserRequest(BaseModel):
     """Request body for admin user creation."""
 
     username: str
-    password: str
+    password: SecretStr
     is_admin: bool = False
 
 

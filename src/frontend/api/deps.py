@@ -1,4 +1,5 @@
-from typing import Annotated, AsyncGenerator
+from collections.abc import AsyncGenerator
+from typing import Annotated
 
 import asyncpg
 import jwt
@@ -32,6 +33,7 @@ async def get_db_conn(
     Args:
         request: Current FastAPI request (provides access to app.state.pool).
     """
+    # Acquire connection from the lifespan-managed pool and release on exit
     async with request.app.state.pool.acquire() as conn:
         yield conn
 
@@ -50,11 +52,13 @@ async def get_current_user(
         HTTPException: 401 if the token is missing, invalid, or expired.
     """
     try:
+        # Decode and verify Bearer JWT signature and expiry
         payload = jwt.decode(
             token,
             settings.api.secret_key.get_secret_value(),
             algorithms=[settings.api.algorithm],
         )
+        # Extract user claims from validated payload
         return UserClaims(user_id=payload["sub"], is_admin=payload["is_admin"])
     except jwt.InvalidTokenError as exc:
         logger.warning("invalid_token", error=str(exc))
@@ -76,6 +80,7 @@ async def require_admin(
     Raises:
         HTTPException: 403 if the user is not an admin.
     """
+    # Reject non-admin callers before any state change
     if not user.is_admin:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
@@ -91,6 +96,9 @@ def get_auth_service(
 
     Args:
         settings: Application settings containing API JWT config.
+
+    Returns:
+        AuthService configured with JWT signing key and algorithm.
     """
     return AuthService(settings.api)
 
@@ -100,9 +108,17 @@ def get_ingest_service(
 ) -> IngestService:
     """Create an IngestService wired with pipeline components from settings.
 
+    PgVectorStore is lightweight at construction (no connection opened until
+    save() is called). The actual DB connection is passed per-request via
+    IngestService.run(conn=...), so this factory is safe to call per request.
+
     Args:
         settings: Application settings for ingestion and database config.
+
+    Returns:
+        IngestService with chunker, embedder, and vector store wired from config.
     """
+    # Wire pipeline components from configuration
     chunker = SentenceChunker(chunk_sentences=settings.ingestion.chunk_sentences)
     embedder = OllamaEmbedder(
         model=settings.ingestion.embedding_model,
