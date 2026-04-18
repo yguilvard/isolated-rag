@@ -49,13 +49,16 @@ class PDFLoader:
 
     @staticmethod
     def _normalize(text: str) -> str:
-        """Collapse mid-line wraps while preserving paragraph boundaries."""
-        # Preserve double newlines (paragraph breaks) as sentinel
-        text = re.sub(r"\n{2,}", "\x00", text)
-        # Collapse remaining single newlines into spaces
-        text = re.sub(r"\n", " ", text)
-        # Collapse multiple spaces
+        """Preserve line structure while normalizing whitespace.
+
+        Single newlines are kept so that line-by-line content (numbered
+        questions, bullet points, QCM answers) remains individually
+        addressable by the chunker.  Three or more consecutive newlines
+        are collapsed to a single blank line.  Horizontal whitespace
+        within a line is normalized to a single space.
+        """
+        # Collapse runs of 3+ newlines to a single blank line
+        text = re.sub(r"\n{3,}", "\n\n", text)
+        # Normalize horizontal whitespace within lines
         text = re.sub(r"[ \t]+", " ", text)
-        # Restore paragraph breaks
-        text = re.sub(r"\x00", "\n\n", text)
         return text.strip()

@@ -1,10 +1,13 @@
 import { useState, useEffect } from 'react'
-import { ingest, type IngestResult } from '../api/client'
+import DocumentList from './DocumentList'
+import SearchSection from './SearchSection'
 import styles from './Upload.module.css'
+import type { DocumentSummary } from '../api/client'
 
 interface Props {
   onLogout: () => void
   onSessionExpired: () => void
+  onOpenDoc: (doc: DocumentSummary) => void
 }
 
 interface AppInfo {
@@ -12,41 +15,15 @@ interface AppInfo {
   embedding_model: string
 }
 
-export default function Upload({ onLogout, onSessionExpired }: Props) {
-  const [file, setFile] = useState<File | null>(null)
-  const [visibility, setVisibility] = useState<'private' | 'public'>('private')
-  const [loading, setLoading] = useState(false)
-  const [result, setResult] = useState<IngestResult | null>(null)
-  const [error, setError] = useState('')
+export default function Upload({ onLogout, onSessionExpired, onOpenDoc }: Props) {
   const [info, setInfo] = useState<AppInfo | null>(null)
 
   useEffect(() => {
     fetch('/info')
       .then(r => r.json())
       .then((data: AppInfo) => setInfo(data))
-      .catch(() => { /* non-critical, header degrades gracefully */ })
+      .catch(() => { /* non-critical */ })
   }, [])
-
-  async function handleSubmit(e: React.FormEvent): Promise<void> {
-    e.preventDefault()
-    if (!file) return
-    setError('')
-    setResult(null)
-    setLoading(true)
-    try {
-      const r = await ingest(file, visibility)
-      setResult(r)
-    } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Upload failed'
-      if (msg === 'Session expired') {
-        onSessionExpired()
-      } else {
-        setError(msg)
-      }
-    } finally {
-      setLoading(false)
-    }
-  }
 
   return (
     <div className={styles.container}>
@@ -67,55 +44,18 @@ export default function Upload({ onLogout, onSessionExpired }: Props) {
         </div>
       </header>
 
-      <main className={styles.main}>
-        <form onSubmit={handleSubmit} className={styles.form}>
-          <div className={styles.fileArea}>
-            <input
-              type="file"
-              accept=".txt,.pdf,.md"
-              onChange={e => {
-                setFile(e.target.files?.[0] ?? null)
-                setResult(null)
-                setError('')
-              }}
-              required
-            />
-            <p className={styles.hint}>Accepted: .txt, .pdf, .md</p>
+      <div className={styles.body}>
+        {/* Left pane — document list */}
+        <DocumentList refreshKey={0} onSessionExpired={onSessionExpired} onOpenDoc={onOpenDoc} />
+
+        {/* Right pane — search + upload */}
+        <main className={styles.main}>
+          <div className={styles.searchCard}>
+            <h2 className={styles.sectionTitle}>Semantic search</h2>
+            <SearchSection onSessionExpired={onSessionExpired} />
           </div>
-
-          <div className={styles.toggle} role="group" aria-label="Visibility">
-            <button
-              type="button"
-              className={visibility === 'private' ? styles.activeToggle : styles.inactiveToggle}
-              onClick={() => setVisibility('private')}
-            >
-              Personal
-            </button>
-            <button
-              type="button"
-              className={visibility === 'public' ? styles.activeToggle : styles.inactiveToggle}
-              onClick={() => setVisibility('public')}
-            >
-              Shared
-            </button>
-          </div>
-
-          <button
-            className={styles.submitBtn}
-            type="submit"
-            disabled={!file || loading}
-          >
-            {loading ? 'Uploading…' : 'Upload'}
-          </button>
-        </form>
-
-        {result && (
-          <p className={styles.success}>
-            ✓ {result.chunks_ingested} chunks ingested from {result.document}
-          </p>
-        )}
-        {error && <p className={styles.error}>{error}</p>}
-      </main>
+        </main>
+      </div>
     </div>
   )
 }

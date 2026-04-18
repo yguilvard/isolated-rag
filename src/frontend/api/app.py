@@ -116,12 +116,13 @@ def create_app(lifespan: Callable | None = None) -> FastAPI:
     Returns:
         Configured FastAPI application instance.
     """
-    import importlib.metadata
     from pathlib import Path
 
     from fastapi.staticfiles import StaticFiles
     from src.frontend.api.routers import auth as auth_router
+    from src.frontend.api.routers import documents as documents_router
     from src.frontend.api.routers import ingest as ingest_router
+    from src.frontend.api.routers import search as search_router
     from src.frontend.api.schemas import InfoResponse
 
     # Use the provided lifespan or the production one
@@ -131,15 +132,23 @@ def create_app(lifespan: Callable | None = None) -> FastAPI:
     @app.get("/info", response_model=InfoResponse)
     def get_info() -> InfoResponse:
         """Return application version and active embedding model."""
+        import tomllib
+
         settings = Settings.from_yaml()
+        _pyproject = Path(__file__).parents[3] / "pyproject.toml"
+        with _pyproject.open("rb") as fh:
+            _meta = tomllib.load(fh)
+        version = _meta.get("project", {}).get("version", "unknown")
         return InfoResponse(
-            version=importlib.metadata.version("isolated-rag"),
+            version=version,
             embedding_model=settings.ingestion.embedding_model,
         )
 
     # Register API routers before static files so API routes take precedence
     app.include_router(auth_router.router)
+    app.include_router(documents_router.router)
     app.include_router(ingest_router.router)
+    app.include_router(search_router.router)
 
     # Serve the built SPA — only if dist/ exists (skipped in Vite dev mode)
     _web_dist = Path(__file__).parent.parent / "web" / "dist"

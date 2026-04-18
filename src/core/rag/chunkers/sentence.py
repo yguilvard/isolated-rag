@@ -80,11 +80,27 @@ class SentenceChunker:
     def chunk(self, document: Document) -> list[Chunk]:
         """Tokenize document into sentences, group into overlapping chunks.
 
-        Falls back to word-boundary splitting for sentences that exceed
-        *max_sentence_chars* (e.g. OCR artefacts without punctuation).
+        Paragraph boundaries (blank lines) are treated as hard sentence breaks
+        so that structured content without terminal punctuation — QCM exams,
+        numbered lists, OCR output — is not collapsed into a single sentence by
+        NLTK.  Within each paragraph, NLTK further splits on ``.?!``.  Any
+        remaining token longer than *max_sentence_chars* is split on word
+        boundaries.
         """
-        # Tokenize content into individual sentences
-        raw_sentences = nltk.sent_tokenize(document.content)
+        # Split on every newline so that each extracted line — question,
+        # answer option, bullet point — becomes a discrete tokenisation unit.
+        # NLTK ignores newlines and collapses the entire document into one
+        # "sentence" when no terminal punctuation (.?!) is present (common for
+        # QCM exams, numbered lists, form fields).  Running NLTK per line still
+        # lets it further split lines that contain multiple sentences.
+        lines = [line.strip() for line in document.content.split("\n") if line.strip()]
+        if not lines:
+            return []
+
+        raw_sentences: list[str] = []
+        for line in lines:
+            raw_sentences.extend(nltk.sent_tokenize(line))
+
         if not raw_sentences:
             return []
 
@@ -120,7 +136,10 @@ class SentenceChunker:
         logger.info(
             "document_chunked",
             path=str(document.path),
+            lines=len(lines),
+            nltk_sentences=len(raw_sentences),
+            units=len(sentences),
             chunks=len(chunks),
-            fallback=len(sentences) != len(raw_sentences),
+            word_split_fallback=len(sentences) != len(raw_sentences),
         )
         return chunks

@@ -1,6 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { login, ingest } from './client'
 
+const defaultOpts = { visibility: 'private' as const, chunkSentences: 5, overlapSentences: 1, documentTitle: 'test' }
+
 beforeEach(() => {
   vi.restoreAllMocks()
   localStorage.clear()
@@ -39,7 +41,7 @@ describe('ingest', () => {
     }))
 
     const file = new File(['hello'], 'doc.txt', { type: 'text/plain' })
-    const result = await ingest(file, 'private')
+    const result = await ingest(file, defaultOpts)
 
     expect(result.chunks_ingested).toBe(5)
     expect(result.document).toBe('doc.txt')
@@ -52,14 +54,14 @@ describe('ingest', () => {
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ status: 401, ok: false }))
 
     const file = new File(['x'], 'f.txt')
-    await expect(ingest(file, 'private')).rejects.toThrow('Session expired')
+    await expect(ingest(file, defaultOpts)).rejects.toThrow('Session expired')
     expect(localStorage.getItem('token')).toBeNull()
   })
 
   it('throws "Not authenticated" when no token in storage', async () => {
     // localStorage is cleared in beforeEach — no token set
     const file = new File(['x'], 'f.txt')
-    await expect(ingest(file, 'private')).rejects.toThrow('Not authenticated')
+    await expect(ingest(file, defaultOpts)).rejects.toThrow('Not authenticated')
   })
 
   it('throws API error detail on 422', async () => {
@@ -71,6 +73,6 @@ describe('ingest', () => {
     }))
 
     const file = new File(['x'], 'f.xyz')
-    await expect(ingest(file, 'private')).rejects.toThrow('Unsupported file type')
+    await expect(ingest(file, defaultOpts)).rejects.toThrow('Unsupported file type')
   })
 })

@@ -7,7 +7,7 @@ import structlog
 
 from src.core.rag.loaders.pdf import PDFLoader
 from src.core.rag.loaders.text import TextLoader
-from src.core.rag.models import Embedding
+from src.core.rag.models import Chunk, Embedding
 from src.core.rag.protocols import Chunker, Embedder, Store
 
 logger = structlog.get_logger()
@@ -45,6 +45,9 @@ class IngestService:
         user_id: UUID,
         visibility: Literal["private", "public"],
         conn: asyncpg.Connection,
+        *,
+        chunker: Chunker | None = None,
+        document_name: str | None = None,
     ) -> int:
         """Ingest a document for a specific user.
 
@@ -58,6 +61,12 @@ class IngestService:
             user_id: UUID of the authenticated user who owns this document.
             visibility: "private" (owner only) or "public" (all users).
             conn: asyncpg connection used for RLS-controlled persistence.
+            chunker: Optional chunker override for this call. When provided,
+                replaces the instance-level chunker so callers can pass
+                per-request settings (e.g. chunk_sentences from a form).
+            document_name: Human-readable name stored as the chunk's
+                document_path (e.g. the original upload filename). When
+                omitted, the on-disk path is used.
 
         Returns:
             Number of chunks ingested.
@@ -73,7 +82,16 @@ class IngestService:
         # Select loader by extension and load document
         loader = _LOADER_MAP[suffix]()
         document = loader.load(path)
-        chunks = self._chunker.chunk(document)
+        active_chunker = chunker if chunker is not None else self._chunker
+        chunks = active_chunker.chunk(document)
+
+        # Rewrite chunk document_path to the human-readable name when provided
+        if document_name:
+            doc_path = Path(document_name)
+            chunks = [
+                Chunk(document_path=doc_path, index=c.index, content=c.content)
+                for c in chunks
+            ]
         embeddings_raw = await self._embedder.embed(chunks)
 
         # Attach ownership metadata to each embedding

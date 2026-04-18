@@ -1,9 +1,12 @@
 .container {
-  min-height: 100vh;
+  height: 100vh;
   display: flex;
   flex-direction: column;
   background: #f5f5f5;
+  overflow: hidden;
 }
+
+/* Header --------------------------------------------------------------------- */
 
 .header {
   display: flex;
@@ -64,39 +67,143 @@
   color: #111;
 }
 
+/* Two-column body layout ----------------------------------------------------- */
+
+.body {
+  flex: 1;
+  display: flex;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* Right-side scrollable content */
 .main {
   flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
   padding: 2rem;
+  gap: 1.5rem;
+  overflow-y: auto;
 }
 
-.form {
+/* Section cards -------------------------------------------------------------- */
+
+.searchCard,
+.uploadCard {
   background: #fff;
-  border-radius: 8px;
-  padding: 2rem;
+  border-radius: 10px;
+  padding: 1.5rem;
   width: 100%;
-  max-width: 480px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  max-width: 760px;
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.08);
+}
+
+.sectionTitle {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: #111;
+  margin: 0 0 1rem;
+}
+
+/* Upload form --------------------------------------------------------------- */
+
+.form {
   display: flex;
   flex-direction: column;
-  gap: 1.25rem;
+  gap: 1.1rem;
 }
+
+/* Ingestion settings fieldset ----------------------------------------------- */
+
+.ingestionFieldset {
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  padding: 0.75rem 1rem 1rem;
+  margin: 0;
+}
+
+.fieldsetLegend {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: #374151;
+  padding: 0 0.25rem;
+}
+
+.ingestionGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem 1.5rem;
+  margin-top: 0.5rem;
+}
+
+@media (max-width: 500px) {
+  .ingestionGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.ingestionLabel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  font-size: 0.8125rem;
+  color: #374151;
+  font-weight: 500;
+}
+
+.ingestionLabel input[type='range'] {
+  width: 100%;
+  accent-color: #2563eb;
+}
+
+.ingestionValue {
+  font-size: 0.75rem;
+  color: #6b7280;
+  font-weight: 400;
+}
+
+/* File area ------------------------------------------------------------------ */
 
 .fileArea {
   border: 2px dashed #d1d5db;
   border-radius: 6px;
-  padding: 1.5rem;
+  padding: 1.25rem;
   text-align: center;
 }
 
 .hint {
-  margin: 0.5rem 0 0;
+  margin: 0.4rem 0 0;
   font-size: 0.75rem;
   color: #9ca3af;
 }
+
+/* Document title ------------------------------------------------------------- */
+
+.titleLabel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: #374151;
+}
+
+.titleInput {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.titleInput:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+
+/* Visibility toggle ---------------------------------------------------------- */
 
 .toggle {
   display: flex;
@@ -130,6 +237,8 @@
   background: #f3f4f6;
 }
 
+/* Submit button -------------------------------------------------------------- */
+
 .submitBtn {
   padding: 0.625rem;
   background: #2563eb;
@@ -151,15 +260,17 @@
   cursor: not-allowed;
 }
 
+/* Feedback messages ---------------------------------------------------------- */
+
 .success {
-  margin-top: 1.25rem;
+  margin-top: 1rem;
   color: #16a34a;
   font-size: 0.875rem;
   font-weight: 500;
 }
 
 .error {
-  margin-top: 1.25rem;
+  margin-top: 1rem;
   color: #dc2626;
   font-size: 0.875rem;
 }

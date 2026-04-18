@@ -48,3 +48,37 @@ class InfoResponse(BaseModel):
 
     version: str
     embedding_model: str
+
+
+class DocumentChunk(BaseModel):
+    """A single text chunk belonging to an ingested document."""
+
+    index: int
+    content: str
+
+
+class DocumentSummary(BaseModel):
+    """Summary of an ingested document visible to the current user."""
+
+    name: str
+    chunks: int
+    visibility: str
+    uploaded_at: datetime
+    avg_chars: int = 0
+
+
+class SearchResultItem(BaseModel):
+    """A single chunk returned by a similarity search."""
+
+    content: str
+    document: str
+    chunk_index: int
+    score: float
+
+
+class SearchResponse(BaseModel):
+    """Similarity search results."""
+
+    query: str
+    scope: str
+    results: list[SearchResultItem]

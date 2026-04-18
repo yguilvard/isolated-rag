@@ -8,6 +8,9 @@ export default defineConfig({
     proxy: {
       '/auth': 'http://localhost:8000',
       '/ingest': 'http://localhost:8000',
+      '/search': 'http://localhost:8000',
+      '/info': 'http://localhost:8000',
+      '/documents': 'http://localhost:8000',
     },
   },
   build: {

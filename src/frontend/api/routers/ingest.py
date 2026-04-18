@@ -6,6 +6,7 @@ import asyncpg
 import structlog
 from fastapi import APIRouter, Depends, Form, HTTPException, UploadFile, status
 
+from src.core.rag.chunkers.sentence import SentenceChunker
 from src.core.services.ingest import IngestService
 from src.frontend.api.deps import get_current_user, get_db_conn, get_ingest_service
 from src.frontend.api.schemas import IngestResponse, UserClaims
@@ -22,6 +23,9 @@ async def ingest(
     service: Annotated[IngestService, Depends(get_ingest_service)],
     file: UploadFile,
     visibility: Annotated[Literal["private", "public"], Form()] = "private",
+    chunk_sentences: Annotated[int, Form(ge=1, le=50)] = 5,
+    overlap_sentences: Annotated[int, Form(ge=0, le=20)] = 1,
+    document_title: Annotated[str, Form(max_length=255)] = "",
 ) -> IngestResponse:
     """Ingest an uploaded document into the user's vector store.
 
@@ -34,6 +38,8 @@ async def ingest(
         service: IngestService wired with pipeline components.
         file: Uploaded document (.pdf, .txt, or .md).
         visibility: "private" (default) or "public".
+        chunk_sentences: Sentences per chunk (1-50, default 5).
+        overlap_sentences: Overlapping sentences between chunks (0-20, default 1).
 
     Returns:
         IngestResponse with chunk count and document name.
@@ -44,6 +50,14 @@ async def ingest(
     """
     filename = file.filename or "upload"
     suffix = Path(filename).suffix.lower()
+    # Use user-provided title when given, otherwise fall back to the upload filename
+    document_name = document_title.strip() if document_title.strip() else filename
+
+    # Build a per-request chunker from the form-supplied settings
+    chunker = SentenceChunker(
+        chunk_sentences=chunk_sentences,
+        overlap_sentences=overlap_sentences,
+    )
 
     with tempfile.NamedTemporaryFile(suffix=suffix, delete=False) as tmp:
         tmp_path = Path(tmp.name)
@@ -51,12 +65,14 @@ async def ingest(
     try:
         # Write upload to a temp file so existing loaders can read from Path
         tmp_path.write_bytes(await file.read())
-        # Run the ingestion pipeline with RLS context
+        # Run the ingestion pipeline with RLS context and custom chunker
         chunks_ingested = await service.run(
             tmp_path,
             user_id=user.user_id,
             visibility=visibility,
             conn=conn,
+            chunker=chunker,
+            document_name=document_name,
         )
     except ValueError as exc:
         raise HTTPException(

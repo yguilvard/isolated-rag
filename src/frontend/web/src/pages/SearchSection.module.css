@@ -1,0 +1,325 @@
+.section {
+  width: 100%;
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+/* Search form ---------------------------------------------------------------- */
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.inputRow {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.inputWrap {
+  position: relative;
+  flex: 1;
+}
+
+.searchIcon {
+  position: absolute;
+  left: 0.6rem;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1.1rem;
+  color: #9ca3af;
+  pointer-events: none;
+  user-select: none;
+}
+
+.input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0.625rem 0.75rem 0.625rem 2.25rem;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.input:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+
+.searchBtn {
+  padding: 0.625rem 1.25rem;
+  background: #2563eb;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s;
+}
+
+.searchBtn:hover:not(:disabled) {
+  background: #1d4ed8;
+}
+
+.searchBtn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* Scope + params row --------------------------------------------------------- */
+
+.controlRow {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.scopeGroup {
+  display: flex;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.scopeBtn,
+.scopeActive {
+  padding: 0.35rem 0.9rem;
+  border: none;
+  font-size: 0.8125rem;
+  cursor: pointer;
+  transition: background 0.12s;
+}
+
+.scopeBtn {
+  background: #fff;
+  color: #374151;
+}
+
+.scopeBtn:hover {
+  background: #f3f4f6;
+}
+
+.scopeActive {
+  background: #2563eb;
+  color: #fff;
+  font-weight: 500;
+}
+
+.scopeHint {
+  font-size: 0.75rem;
+  color: #9ca3af;
+  flex: 1;
+}
+
+.paramsToggle {
+  margin-left: auto;
+  font-size: 0.8rem;
+  color: #6b7280;
+  background: none;
+  border: 1px solid #e5e7eb;
+  border-radius: 4px;
+  padding: 0.3rem 0.5rem 0.3rem 0.65rem;
+  cursor: pointer;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 0.1rem;
+  transition: color 0.12s, border-color 0.12s;
+}
+
+.paramsToggle .material-symbols-outlined {
+  font-size: 1rem;
+}
+
+.paramsToggle:hover {
+  color: #111;
+  border-color: #9ca3af;
+}
+
+/* Model parameters panel ----------------------------------------------------- */
+
+.paramsPanel {
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  padding: 1rem 1.25rem;
+}
+
+.paramsGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem 1.5rem;
+}
+
+@media (max-width: 540px) {
+  .paramsGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.paramLabel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-size: 0.8125rem;
+  color: #374151;
+  font-weight: 500;
+}
+
+.paramName {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.infoIcon {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.95rem;
+  color: #9ca3af;
+  cursor: default;
+  flex-shrink: 0;
+  transition: color 0.12s;
+  user-select: none;
+}
+
+.infoIcon:hover {
+  color: #2563eb;
+}
+
+/* Tooltip bubble via ::after ----------------------------------------------- */
+
+.infoIcon::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  width: 210px;
+  padding: 0.45rem 0.6rem;
+  background: #1f2937;
+  color: #f9fafb;
+  font-size: 0.72rem;
+  font-weight: 400;
+  line-height: 1.45;
+  border-radius: 5px;
+  white-space: normal;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s;
+  z-index: 200;
+  text-align: left;
+}
+
+/* Small arrow pointing down */
+.infoIcon::before {
+  content: '';
+  position: absolute;
+  bottom: calc(100% + 2px);
+  left: 50%;
+  transform: translateX(-50%);
+  border: 5px solid transparent;
+  border-top-color: #1f2937;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s;
+  z-index: 200;
+}
+
+.infoIcon:hover::after,
+.infoIcon:hover::before {
+  opacity: 1;
+}
+
+.paramLabel input[type='range'] {
+  width: 100%;
+  accent-color: #2563eb;
+}
+
+.paramValue {
+  font-size: 0.75rem;
+  color: #6b7280;
+  font-weight: 400;
+}
+
+.numInput {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0.3rem 0.5rem;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  font-size: 0.875rem;
+}
+
+/* Results -------------------------------------------------------------------- */
+
+.error {
+  margin-top: 0.75rem;
+  color: #dc2626;
+  font-size: 0.875rem;
+}
+
+.results {
+  margin-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.resultsMeta {
+  font-size: 0.8125rem;
+  color: #6b7280;
+  margin: 0;
+}
+
+.resultCard {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  padding: 0.875rem 1rem;
+}
+
+.resultHeader {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.resultDoc {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #111;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 60%;
+}
+
+.resultMeta {
+  font-size: 0.75rem;
+  color: #9ca3af;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.resultContent {
+  font-size: 0.875rem;
+  color: #374151;
+  line-height: 1.55;
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
