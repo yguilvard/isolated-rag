@@ -21,6 +21,34 @@ services:
       - ./data/ollama:/root/.ollama
     restart: unless-stopped
 
+  ollama-llama:
+    image: ollama/ollama:latest
+    ports:
+      - "${OLLAMA_LLAMA_PORT:-11435}:11434"
+    volumes:
+      - ./data/ollama-llama:/root/.ollama
+    entrypoint: ["/bin/sh", "-c"]
+    command: >
+      /bin/ollama serve &
+      until /bin/ollama list >/dev/null 2>&1; do sleep 1; done &&
+      /bin/ollama pull llama3.2 &&
+      wait
+    restart: unless-stopped
+
+  ollama-mistral:
+    image: ollama/ollama:latest
+    ports:
+      - "${OLLAMA_MISTRAL_PORT:-11436}:11434"
+    volumes:
+      - ./data/ollama-mistral:/root/.ollama
+    entrypoint: ["/bin/sh", "-c"]
+    command: >
+      /bin/ollama serve &
+      until /bin/ollama list >/dev/null 2>&1; do sleep 1; done &&
+      /bin/ollama pull mistral &&
+      wait
+    restart: unless-stopped
+
   pgadmin:
     image: dpage/pgadmin4:latest
     profiles: [pgadmin]

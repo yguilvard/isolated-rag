@@ -51,22 +51,19 @@ class IngestService:
     ) -> int:
         """Ingest a document for a specific user.
 
-        Loads, chunks, and embeds the document, then persists with owner_id
-        and visibility set. RLS is activated inside a transaction via
-        set_config so it does not leak to subsequent requests on the same
-        pooled connection.
+        Loads, chunks, embeds, and persists the document with owner_id and
+        visibility set. RLS is activated inside a transaction via set_config
+        so it does not leak to subsequent requests on the same pooled connection.
 
         Args:
             path: Path to the document file (.pdf, .txt, or .md).
             user_id: UUID of the authenticated user who owns this document.
             visibility: "private" (owner only) or "public" (all users).
             conn: asyncpg connection used for RLS-controlled persistence.
-            chunker: Optional chunker override for this call. When provided,
-                replaces the instance-level chunker so callers can pass
-                per-request settings (e.g. chunk_sentences from a form).
+            chunker: Optional per-request chunker override (e.g. custom
+                chunk_sentences from a form field).
             document_name: Human-readable name stored as the chunk's
-                document_path (e.g. the original upload filename). When
-                omitted, the on-disk path is used.
+                document_path. When omitted, the on-disk path is used.
 
         Returns:
             Number of chunks ingested.

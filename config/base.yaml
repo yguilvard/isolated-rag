@@ -3,6 +3,16 @@ ingestion:
   chunk_sentences: 5
   ollama_url: http://localhost:11434
 
+chat_providers:
+  - id: llama3.2
+    label: "LLaMA 3.2"
+    model: llama3.2
+    ollama_url: http://localhost:11435
+  - id: mistral
+    label: "Mistral 7B"
+    model: mistral
+    ollama_url: http://localhost:11436
+
 database:
   host: localhost
   port: 5432

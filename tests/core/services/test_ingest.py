@@ -44,8 +44,6 @@ def conn():
     txn = MagicMock()
     txn.__aenter__ = AsyncMock(return_value=None)
     txn.__aexit__ = AsyncMock(return_value=False)
-    # Use MagicMock (not AsyncMock) because asyncpg.Connection.transaction()
-    # is synchronous — it returns a Transaction context manager, not a coroutine.
     mock.transaction = MagicMock(return_value=txn)
     return mock
 

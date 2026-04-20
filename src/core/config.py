@@ -7,6 +7,15 @@ from pydantic.fields import FieldInfo
 from pydantic_settings import BaseSettings, PydanticBaseSettingsSource, SettingsConfigDict
 
 
+class ChatProviderConfig(BaseModel):
+    """A single named generative model served by a dedicated Ollama instance."""
+
+    id: str
+    label: str
+    model: str
+    ollama_url: str
+
+
 class IngestionSettings(BaseModel):
     """Ingestion pipeline configuration."""
 
@@ -80,6 +89,7 @@ class Settings(BaseSettings):
     ingestion: IngestionSettings = IngestionSettings()
     database: DatabaseSettings = DatabaseSettings()
     api: ApiSettings = ApiSettings()
+    chat_providers: list[ChatProviderConfig] = []
 
     @classmethod
     def settings_customise_sources(

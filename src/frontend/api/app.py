@@ -122,6 +122,7 @@ def create_app(lifespan: Callable | None = None) -> FastAPI:
     from src.frontend.api.routers import auth as auth_router
     from src.frontend.api.routers import documents as documents_router
     from src.frontend.api.routers import ingest as ingest_router
+    from src.frontend.api.routers import models as models_router
     from src.frontend.api.routers import search as search_router
     from src.frontend.api.schemas import InfoResponse
 
@@ -148,6 +149,7 @@ def create_app(lifespan: Callable | None = None) -> FastAPI:
     app.include_router(auth_router.router)
     app.include_router(documents_router.router)
     app.include_router(ingest_router.router)
+    app.include_router(models_router.router)
     app.include_router(search_router.router)
 
     # Serve the built SPA — only if dist/ exists (skipped in Vite dev mode)

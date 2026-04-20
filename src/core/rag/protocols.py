@@ -6,6 +6,12 @@ import asyncpg
 from src.core.rag.models import Chunk, Document, Embedding
 
 
+class Filter(Protocol):
+    """Removes unwanted chunks from a document's chunk list."""
+
+    async def filter(self, chunks: list[Chunk], *, context: str = "") -> list[Chunk]: ...
+
+
 class Loader(Protocol):
     """Loads a file from disk into a Document."""
 

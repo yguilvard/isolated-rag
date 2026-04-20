@@ -30,6 +30,20 @@ export async function login(username: string, password: string): Promise<string>
   return data.access_token
 }
 
+export interface ChatProvider {
+  id: string
+  label: string
+}
+
+export async function fetchModels(): Promise<ChatProvider[]> {
+  const token = localStorage.getItem('token')
+  if (!token) throw new Error('Not authenticated')
+  const res = await fetch('/models', { headers: { Authorization: `Bearer ${token}` } })
+  if (res.status === 401) { localStorage.removeItem('token'); throw new Error('Session expired') }
+  if (!res.ok) return []
+  return res.json()
+}
+
 export interface IngestOptions {
   visibility: 'private' | 'public'
   chunkSentences: number

@@ -40,6 +40,7 @@ async def ingest(
         visibility: "private" (default) or "public".
         chunk_sentences: Sentences per chunk (1-50, default 5).
         overlap_sentences: Overlapping sentences between chunks (0-20, default 1).
+        document_title: Optional human-readable document name.
 
     Returns:
         IngestResponse with chunk count and document name.
@@ -50,10 +51,8 @@ async def ingest(
     """
     filename = file.filename or "upload"
     suffix = Path(filename).suffix.lower()
-    # Use user-provided title when given, otherwise fall back to the upload filename
     document_name = document_title.strip() if document_title.strip() else filename
 
-    # Build a per-request chunker from the form-supplied settings
     chunker = SentenceChunker(
         chunk_sentences=chunk_sentences,
         overlap_sentences=overlap_sentences,
@@ -63,9 +62,7 @@ async def ingest(
         tmp_path = Path(tmp.name)
 
     try:
-        # Write upload to a temp file so existing loaders can read from Path
         tmp_path.write_bytes(await file.read())
-        # Run the ingestion pipeline with RLS context and custom chunker
         chunks_ingested = await service.run(
             tmp_path,
             user_id=user.user_id,
