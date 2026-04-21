@@ -161,6 +161,72 @@ export async function deleteDocument(name: string): Promise<void> {
   }
 }
 
+export interface ChatSource {
+  document: string
+  chunk_index: number
+  score: number
+  content: string
+}
+
+export interface ChatOptions {
+  query: string
+  modelId: string
+  useRag: boolean
+  scope: 'private' | 'public' | 'all'
+  topK: number
+}
+
+export type ChatEvent =
+  | { type: 'sources'; items: ChatSource[] }
+  | { type: 'token'; content: string }
+  | { type: 'done' }
+  | { type: 'error'; message: string }
+
+export async function* streamChat(options: ChatOptions): AsyncGenerator<ChatEvent> {
+  const token = localStorage.getItem('token')
+  if (!token) throw new Error('Not authenticated')
+
+  const form = new FormData()
+  form.append('query', options.query)
+  form.append('model_id', options.modelId)
+  form.append('use_rag', String(options.useRag))
+  form.append('scope', options.scope)
+  form.append('top_k', String(options.topK))
+
+  const res = await fetch('/chat', {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${token}` },
+    body: form,
+  })
+
+  if (res.status === 401) {
+    localStorage.removeItem('token')
+    throw new Error('Session expired')
+  }
+  if (!res.ok) throw new Error('Chat request failed')
+
+  const reader = res.body!.getReader()
+  const decoder = new TextDecoder()
+  let buffer = ''
+
+  while (true) {
+    const { done, value } = await reader.read()
+    if (done) break
+    buffer += decoder.decode(value, { stream: true })
+    const lines = buffer.split('\n')
+    buffer = lines.pop() ?? ''
+    for (const line of lines) {
+      if (line.startsWith('data: ')) {
+        try {
+          yield JSON.parse(line.slice(6)) as ChatEvent
+        } catch {
+          // malformed event — skip
+        }
+      }
+    }
+  }
+}
+
 export interface SearchOptions {
   query: string
   scope: 'private' | 'public' | 'all'

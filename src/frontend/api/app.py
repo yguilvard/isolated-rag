@@ -120,6 +120,7 @@ def create_app(lifespan: Callable | None = None) -> FastAPI:
 
     from fastapi.staticfiles import StaticFiles
     from src.frontend.api.routers import auth as auth_router
+    from src.frontend.api.routers import chat as chat_router
     from src.frontend.api.routers import documents as documents_router
     from src.frontend.api.routers import ingest as ingest_router
     from src.frontend.api.routers import models as models_router
@@ -147,6 +148,7 @@ def create_app(lifespan: Callable | None = None) -> FastAPI:
 
     # Register API routers before static files so API routes take precedence
     app.include_router(auth_router.router)
+    app.include_router(chat_router.router)
     app.include_router(documents_router.router)
     app.include_router(ingest_router.router)
     app.include_router(models_router.router)
