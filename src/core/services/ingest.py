@@ -5,6 +5,7 @@ from uuid import UUID
 import asyncpg
 import structlog
 
+from src.core.rag.filters.heuristic import HeuristicNoiseFilter
 from src.core.rag.loaders.pdf import PDFLoader
 from src.core.rag.loaders.text import TextLoader
 from src.core.rag.models import Chunk, Embedding
@@ -27,6 +28,8 @@ class IngestService:
         chunker: Chunker,
         embedder: Embedder,
         store: Store,
+        *,
+        noise_filter: HeuristicNoiseFilter | None = None,
     ) -> None:
         """Initialize with pipeline components.
 
@@ -34,10 +37,13 @@ class IngestService:
             chunker: Splits documents into chunks.
             embedder: Embeds chunks into vectors.
             store: Persists embeddings (any Store protocol implementer).
+            noise_filter: Optional filter that drops low-quality chunks (TOC
+                dot-leaders, micro-fragments) before embedding.
         """
         self._chunker = chunker
         self._embedder = embedder
         self._store = store
+        self._noise_filter = noise_filter
 
     async def run(
         self,
@@ -82,6 +88,10 @@ class IngestService:
         active_chunker = chunker if chunker is not None else self._chunker
         chunks = active_chunker.chunk(document)
 
+        # Drop TOC dot-leaders, micro-fragments, and other noise before embedding
+        if self._noise_filter is not None:
+            chunks = await self._noise_filter.filter(chunks)
+
         # Rewrite chunk document_path to the human-readable name when provided
         if document_name:
             doc_path = Path(document_name)
@@ -103,10 +113,17 @@ class IngestService:
             for e in embeddings_raw
         ]
 
-        # Set RLS session variable inside a transaction (LOCAL scope) and save
+        # The path stored in the embeddings table (human name or file path)
+        stored_doc_path = document_name or str(path)
+
+        # Set RLS context, delete stale chunks, then insert fresh embeddings —
+        # all in one transaction so re-ingestion never leaves orphaned rows.
         async with conn.transaction():
             await conn.execute(
                 "SELECT set_config('app.current_user_id', $1, true)", str(user_id)
+            )
+            await conn.execute(
+                "DELETE FROM embeddings WHERE document_path = $1", stored_doc_path
             )
             await self._store.save(embeddings, conn=conn)
 

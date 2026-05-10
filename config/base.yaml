@@ -1,7 +1,8 @@
 ingestion:
-  embedding_model: nomic-embed-text
+  embedding_model: bge-m3
   chunk_sentences: 5
   ollama_url: http://localhost:11434
+  min_relevance_score: 0.55
 
 chat_providers:
   - id: llama3.2

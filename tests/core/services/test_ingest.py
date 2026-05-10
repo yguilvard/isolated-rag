@@ -69,10 +69,25 @@ async def test_run_sets_rls_config_inside_transaction(service, conn, tmp_path):
     with patch("src.core.services.ingest.TextLoader"):
         await service.run(doc, uid, "private", conn)
 
-    conn.execute.assert_called_once_with(
-        "SELECT set_config('app.current_user_id', $1, true)", str(uid)
-    )
+    # First call: set_config; second call: DELETE stale chunks
+    calls = conn.execute.call_args_list
+    assert any("set_config" in str(c) for c in calls)
+    assert any("DELETE" in str(c) for c in calls)
     conn.transaction.assert_called_once()
+
+
+async def test_run_deletes_existing_chunks_before_save(service, conn, tmp_path):
+    doc = tmp_path / "report.txt"
+    doc.write_text("Hello world.")
+    uid = uuid4()
+
+    with patch("src.core.services.ingest.TextLoader"):
+        await service.run(doc, uid, "private", conn)
+
+    delete_calls = [c for c in conn.execute.call_args_list if "DELETE" in str(c)]
+    assert len(delete_calls) == 1
+    # stored_doc_path falls back to str(path) when document_name is not provided
+    assert str(doc) in str(delete_calls[0])
 
 
 async def test_run_attaches_owner_id_and_visibility_to_embeddings(service, store, conn, tmp_path):
@@ -86,6 +101,32 @@ async def test_run_attaches_owner_id_and_visibility_to_embeddings(service, store
     saved = store.save.call_args[0][0]
     assert all(e.owner_id == uid for e in saved)
     assert all(e.visibility == "public" for e in saved)
+
+
+async def test_run_applies_noise_filter_when_set(chunker, embedder, store, conn, tmp_path):
+    from unittest.mock import AsyncMock as AM
+    from src.core.rag.filters.heuristic import HeuristicNoiseFilter
+    from src.core.rag.models import Chunk
+    from pathlib import Path
+
+    noise_filter = HeuristicNoiseFilter()
+    svc = IngestService(chunker=chunker, embedder=embedder, store=store, noise_filter=noise_filter)
+
+    # Chunker returns one good chunk and one noise chunk (9 chars — below min_length)
+    good = Chunk(document_path=Path("doc.txt"), index=0, content="A" * 60)
+    noise = Chunk(document_path=Path("doc.txt"), index=1, content="X" * 9)
+    chunker.chunk.return_value = [good, noise]
+
+    doc = tmp_path / "doc.txt"
+    doc.write_text("...")
+    with patch("src.core.services.ingest.TextLoader"):
+        count = await svc.run(doc, uuid4(), "private", conn)
+
+    # Only the good chunk reaches the embedder
+    embedded_chunks = embedder.embed.call_args[0][0]
+    assert len(embedded_chunks) == 1
+    assert embedded_chunks[0].content == good.content
+    assert count == 1
 
 
 async def test_run_raises_on_unsupported_extension(service, conn, tmp_path):

@@ -88,7 +88,8 @@ async def chat(
         if use_rag:
             try:
                 chunks = await service.retrieve(
-                    query, conn, user.user_id, scope, top_k
+                    query, conn, user.user_id, scope, top_k,
+                    llm=llm, min_score=settings.ingestion.min_relevance_score,
                 )
                 sources = [
                     {
@@ -99,7 +100,11 @@ async def chat(
                     }
                     for c in chunks
                 ]
-                yield _sse({"type": "sources", "items": sources})
+                yield _sse({
+                    "type": "sources",
+                    "items": sources,
+                    "no_context": len(chunks) == 0,
+                })
             except Exception as exc:
                 logger.warning("rag_retrieval_failed", error=str(exc))
                 yield _sse({"type": "sources", "items": []})

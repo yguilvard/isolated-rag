@@ -10,6 +10,7 @@ from fastapi.security import OAuth2PasswordBearer
 from src.core.config import Settings
 from src.core.rag.chunkers.sentence import SentenceChunker
 from src.core.rag.embedders.ollama import OllamaEmbedder
+from src.core.rag.filters.heuristic import HeuristicNoiseFilter
 from src.core.rag.store.pgvector import PgVectorStore
 from src.core.services.auth import AuthService
 from src.core.services.ingest import IngestService
@@ -125,4 +126,5 @@ def get_ingest_service(
         base_url=settings.ingestion.ollama_url,
     )
     store = PgVectorStore(dsn=settings.database.dsn)
-    return IngestService(chunker=chunker, embedder=embedder, store=store)
+    noise_filter = HeuristicNoiseFilter()
+    return IngestService(chunker=chunker, embedder=embedder, store=store, noise_filter=noise_filter)

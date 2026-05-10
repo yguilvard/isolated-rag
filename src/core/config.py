@@ -22,6 +22,7 @@ class IngestionSettings(BaseModel):
     embedding_model: str = "nomic-embed-text"
     chunk_sentences: int = 5
     ollama_url: str = "http://localhost:11434"
+    min_relevance_score: float = 0.55
 
 
 class DatabaseSettings(BaseModel):

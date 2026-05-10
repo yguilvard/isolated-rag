@@ -177,7 +177,7 @@ export interface ChatOptions {
 }
 
 export type ChatEvent =
-  | { type: 'sources'; items: ChatSource[] }
+  | { type: 'sources'; items: ChatSource[]; no_context?: boolean }
   | { type: 'token'; content: string }
   | { type: 'done' }
   | { type: 'error'; message: string }

@@ -3,6 +3,77 @@ import { fetchModels, streamChat } from '../api/client'
 import type { ChatProvider, ChatSource } from '../api/client'
 import styles from './ChatSection.module.css'
 
+/* ── Source modal helpers ─────────────────────────────────────────────────── */
+
+function isPstSource(doc: string) {
+  return doc.includes('::')
+}
+
+interface EmailParts {
+  from: string; to: string; date: string; subject: string; body: string
+}
+
+function parseEmail(content: string): EmailParts {
+  const [headerBlock, ...bodyParts] = content.split('\n\n')
+  const body = bodyParts.join('\n\n').trim()
+  const get = (key: string) => {
+    const m = headerBlock.match(new RegExp(`^${key}:\\s*(.*)`, 'mi'))
+    return m ? m[1].trim() : ''
+  }
+  return { from: get('From'), to: get('To'), date: get('Date'), subject: get('Subject'), body }
+}
+
+function SourceModal({ source, onClose }: { source: ChatSource; onClose: () => void }) {
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose() }
+    window.addEventListener('keydown', handler)
+    return () => window.removeEventListener('keydown', handler)
+  }, [onClose])
+
+  const isPst = isPstSource(source.document)
+  const isAttachment = source.document.includes('::att:')
+  const email = isPst && !isAttachment ? parseEmail(source.content) : null
+
+  return (
+    <div className={styles.modalOverlay} onClick={onClose}>
+      <div className={styles.modal} onClick={e => e.stopPropagation()} role="dialog" aria-modal>
+        <div className={styles.modalHeader}>
+          <div className={styles.modalMeta}>
+            <span className="material-symbols-outlined">
+              {isPst ? (isAttachment ? 'attach_file' : 'mail') : 'description'}
+            </span>
+            <span className={styles.modalDoc}>{source.document}</span>
+            <span className={styles.modalChip}>chunk #{source.chunk_index}</span>
+            <span className={styles.modalChip}>{(source.score * 100).toFixed(1)}% match</span>
+          </div>
+          <button className={styles.modalClose} onClick={onClose} aria-label="Close">
+            <span className="material-symbols-outlined">close</span>
+          </button>
+        </div>
+
+        <div className={styles.modalBody}>
+          {email ? (
+            <>
+              <table className={styles.emailHeaders}>
+                <tbody>
+                  {email.from    && <tr><td className={styles.emailLabel}>From</td><td>{email.from}</td></tr>}
+                  {email.to      && <tr><td className={styles.emailLabel}>To</td><td>{email.to}</td></tr>}
+                  {email.date    && <tr><td className={styles.emailLabel}>Date</td><td>{email.date}</td></tr>}
+                  {email.subject && <tr><td className={styles.emailLabel}>Subject</td><td><strong>{email.subject}</strong></td></tr>}
+                </tbody>
+              </table>
+              <div className={styles.emailDivider} />
+              <pre className={styles.modalContent}>{email.body || '(no body)'}</pre>
+            </>
+          ) : (
+            <pre className={styles.modalContent}>{source.content}</pre>
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}
+
 interface Props {
   onSessionExpired: () => void
 }
@@ -12,6 +83,7 @@ interface Message {
   role: 'user' | 'assistant'
   content: string
   sources?: ChatSource[]
+  noContext?: boolean
   error?: boolean
 }
 
@@ -26,6 +98,7 @@ export default function ChatSection({ onSessionExpired }: Props) {
   const [messages, setMessages] = useState<Message[]>([])
   const [query, setQuery] = useState('')
   const [streaming, setStreaming] = useState(false)
+  const [selectedSource, setSelectedSource] = useState<ChatSource | null>(null)
   const bottomRef = useRef<HTMLDivElement>(null)
   const abortRef = useRef<boolean>(false)
 
@@ -67,7 +140,7 @@ export default function ChatSection({ onSessionExpired }: Props) {
         if (event.type === 'sources') {
           sources = event.items
           setMessages(prev =>
-            prev.map(m => m.id === assistantId ? { ...m, sources } : m)
+            prev.map(m => m.id === assistantId ? { ...m, sources, noContext: event.no_context } : m)
           )
         } else if (event.type === 'token') {
           setMessages(prev =>
@@ -200,6 +273,12 @@ export default function ChatSection({ onSessionExpired }: Props) {
                 <span className="material-symbols-outlined">edit</span>
               </button>
             )}
+            {msg.role === 'assistant' && msg.noContext && (
+              <div className={styles.noContext}>
+                <span className="material-symbols-outlined">search_off</span>
+                No relevant content found in your documents — answering from model knowledge
+              </div>
+            )}
             {msg.role === 'assistant' && msg.sources && msg.sources.length > 0 && (
               <details className={styles.sources}>
                 <summary className={styles.sourcesSummary}>
@@ -208,9 +287,12 @@ export default function ChatSection({ onSessionExpired }: Props) {
                 </summary>
                 <ul className={styles.sourceList}>
                   {msg.sources.map((s, i) => (
-                    <li key={i} className={styles.sourceItem}>
-                      <span className={styles.sourceDoc}>{s.document}</span>
-                      <span className={styles.sourceMeta}>chunk #{s.chunk_index} · score {s.score.toFixed(3)}</span>
+                    <li key={i} className={styles.sourceItem} onClick={() => setSelectedSource(s)} title="Click to view full source">
+                      <span className={styles.sourceDoc}>
+                        <span className="material-symbols-outlined">{s.document.includes('::') ? (s.document.includes('::att:') ? 'attach_file' : 'mail') : 'description'}</span>
+                        {s.document}
+                      </span>
+                      <span className={styles.sourceMeta}>chunk #{s.chunk_index} · {(s.score * 100).toFixed(1)}% match</span>
                       <p className={styles.sourceContent}>{s.content.slice(0, 200)}{s.content.length > 200 ? '…' : ''}</p>
                     </li>
                   ))}
@@ -226,6 +308,10 @@ export default function ChatSection({ onSessionExpired }: Props) {
         ))}
         <div ref={bottomRef} />
       </div>
+
+      {selectedSource && (
+        <SourceModal source={selectedSource} onClose={() => setSelectedSource(null)} />
+      )}
 
       {/* Input area */}
       <div className={styles.inputRow}>
