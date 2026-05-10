@@ -1,0 +1,297 @@
+/* Backdrop ------------------------------------------------------------------- */
+
+.backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 500;
+  padding: 1rem;
+}
+
+/* Dialog card ---------------------------------------------------------------- */
+
+.dialog {
+  background: #fff;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 440px;
+  max-height: calc(100vh - 2rem);
+  overflow-y: auto;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
+  display: flex;
+  flex-direction: column;
+}
+
+/* Header --------------------------------------------------------------------- */
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem 1.25rem 0.75rem;
+  border-bottom: 1px solid #f3f4f6;
+  flex-shrink: 0;
+}
+
+.headerIcon {
+  font-size: 1.25rem;
+  color: #2563eb;
+  user-select: none;
+}
+
+.title {
+  flex: 1;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: #111;
+  margin: 0;
+}
+
+.closeBtn {
+  display: flex;
+  align-items: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #9ca3af;
+  padding: 0.2rem;
+  border-radius: 4px;
+  transition: color 0.12s;
+}
+
+.closeBtn:hover {
+  color: #374151;
+}
+
+.closeBtn .material-symbols-outlined {
+  font-size: 1.15rem;
+}
+
+/* Form ----------------------------------------------------------------------- */
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1.25rem;
+}
+
+/* File area ------------------------------------------------------------------ */
+
+.fileArea {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  border: 2px dashed #d1d5db;
+  border-radius: 8px;
+  padding: 1.25rem 1rem;
+  text-align: center;
+  transition: border-color 0.15s;
+  cursor: pointer;
+}
+
+.fileArea:hover {
+  border-color: #2563eb;
+}
+
+.fileAreaIcon {
+  font-size: 2rem;
+  color: #9ca3af;
+  user-select: none;
+}
+
+.fileLabel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+}
+
+.fileLabelText {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #374151;
+  text-decoration: underline;
+  text-decoration-style: dotted;
+  text-underline-offset: 3px;
+}
+
+.fileInput {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  overflow: hidden;
+}
+
+.hint {
+  font-size: 0.72rem;
+  color: #9ca3af;
+  margin: 0;
+}
+
+/* Generic field label -------------------------------------------------------- */
+
+.fieldLabel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: #374151;
+}
+
+.textInput {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.textInput:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+
+/* Visibility toggle ---------------------------------------------------------- */
+
+.toggle {
+  display: flex;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  overflow: hidden;
+  align-self: flex-start;
+}
+
+.toggleActive,
+.toggleInactive {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.45rem 1rem;
+  border: none;
+  font-size: 0.8125rem;
+  cursor: pointer;
+  transition: background 0.12s;
+}
+
+.toggleActive .material-symbols-outlined,
+.toggleInactive .material-symbols-outlined {
+  font-size: 1rem;
+  user-select: none;
+}
+
+.toggleActive {
+  background: #2563eb;
+  color: #fff;
+  font-weight: 500;
+}
+
+.toggleInactive {
+  background: #fff;
+  color: #374151;
+}
+
+.toggleInactive:hover {
+  background: #f3f4f6;
+}
+
+/* Chunking fieldset ---------------------------------------------------------- */
+
+.fieldset {
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  padding: 0.625rem 0.875rem 0.875rem;
+  margin: 0;
+}
+
+.legend {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: #374151;
+  padding: 0 0.25rem;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem 1.25rem;
+  margin-top: 0.5rem;
+}
+
+.rangeLabel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  font-size: 0.8rem;
+  color: #374151;
+  font-weight: 500;
+}
+
+.rangeValue {
+  font-size: 0.72rem;
+  color: #9ca3af;
+  font-weight: 400;
+}
+
+.rangeLabel input[type='range'] {
+  width: 100%;
+  accent-color: #2563eb;
+}
+
+/* Feedback ------------------------------------------------------------------- */
+
+.error {
+  font-size: 0.8125rem;
+  color: #dc2626;
+  margin: 0;
+}
+
+/* Submit button -------------------------------------------------------------- */
+
+.submitBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  padding: 0.625rem;
+  background: #2563eb;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.submitBtn .material-symbols-outlined {
+  font-size: 1.1rem;
+  user-select: none;
+}
+
+.submitBtn:hover:not(:disabled) {
+  background: #1d4ed8;
+}
+
+.submitBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Spinner -------------------------------------------------------------------- */
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.spin {
+  animation: spin 0.8s linear infinite;
+  display: inline-block;
+}

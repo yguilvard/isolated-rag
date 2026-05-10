@@ -1,0 +1,335 @@
+.container {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: #f5f5f5;
+  overflow: hidden;
+}
+
+/* Header --------------------------------------------------------------------- */
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1.5rem;
+  background: #fff;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.headerLeft {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+
+.headerRight {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #111;
+}
+
+.version {
+  font-size: 0.75rem;
+  color: #9ca3af;
+  font-weight: 400;
+}
+
+.modelBadge {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #2563eb;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  border-radius: 999px;
+  padding: 0.2rem 0.65rem;
+  white-space: nowrap;
+}
+
+.logoutBtn {
+  font-size: 0.875rem;
+  color: #6b7280;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  transition: color 0.15s;
+}
+
+.logoutBtn:hover {
+  color: #111;
+}
+
+/* Two-column body layout ----------------------------------------------------- */
+
+.body {
+  flex: 1;
+  display: flex;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* Right-side scrollable content */
+.main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1.5rem 2rem 2rem;
+  gap: 1rem;
+  overflow-y: auto;
+  min-height: 0;
+}
+
+/* Tab switcher --------------------------------------------------------------- */
+
+.tabs {
+  display: flex;
+  gap: 0.25rem;
+  width: 100%;
+  max-width: 760px;
+  background: #fff;
+  border-radius: 8px;
+  padding: 0.25rem;
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.08);
+}
+
+.tab {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  flex: 1;
+  justify-content: center;
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: #6b7280;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.tab .material-symbols-outlined {
+  font-size: 1.1rem;
+}
+
+.tab:hover {
+  color: #111;
+  background: #f3f4f6;
+}
+
+.tabActive {
+  background: #eff6ff;
+  color: #2563eb;
+}
+
+/* Section cards -------------------------------------------------------------- */
+
+.searchCard,
+.uploadCard {
+  background: #fff;
+  border-radius: 10px;
+  padding: 1.5rem;
+  width: 100%;
+  max-width: 760px;
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.08);
+}
+
+.chatCard {
+  background: #fff;
+  border-radius: 10px;
+  padding: 1rem 1.5rem 1.5rem;
+  width: 100%;
+  max-width: 760px;
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.08);
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.sectionTitle {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: #111;
+  margin: 0 0 1rem;
+}
+
+/* Upload form --------------------------------------------------------------- */
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+}
+
+/* Ingestion settings fieldset ----------------------------------------------- */
+
+.ingestionFieldset {
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  padding: 0.75rem 1rem 1rem;
+  margin: 0;
+}
+
+.fieldsetLegend {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: #374151;
+  padding: 0 0.25rem;
+}
+
+.ingestionGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem 1.5rem;
+  margin-top: 0.5rem;
+}
+
+@media (max-width: 500px) {
+  .ingestionGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.ingestionLabel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  font-size: 0.8125rem;
+  color: #374151;
+  font-weight: 500;
+}
+
+.ingestionLabel input[type='range'] {
+  width: 100%;
+  accent-color: #2563eb;
+}
+
+.ingestionValue {
+  font-size: 0.75rem;
+  color: #6b7280;
+  font-weight: 400;
+}
+
+/* File area ------------------------------------------------------------------ */
+
+.fileArea {
+  border: 2px dashed #d1d5db;
+  border-radius: 6px;
+  padding: 1.25rem;
+  text-align: center;
+}
+
+.hint {
+  margin: 0.4rem 0 0;
+  font-size: 0.75rem;
+  color: #9ca3af;
+}
+
+/* Document title ------------------------------------------------------------- */
+
+.titleLabel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: #374151;
+}
+
+.titleInput {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.titleInput:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+
+/* Visibility toggle ---------------------------------------------------------- */
+
+.toggle {
+  display: flex;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  overflow: hidden;
+  align-self: flex-start;
+}
+
+.activeToggle {
+  padding: 0.5rem 1.25rem;
+  border: none;
+  background: #2563eb;
+  color: #fff;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.inactiveToggle {
+  padding: 0.5rem 1.25rem;
+  border: none;
+  background: #fff;
+  color: #374151;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.inactiveToggle:hover {
+  background: #f3f4f6;
+}
+
+/* Submit button -------------------------------------------------------------- */
+
+.submitBtn {
+  padding: 0.625rem;
+  background: #2563eb;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.submitBtn:hover:not(:disabled) {
+  background: #1d4ed8;
+}
+
+.submitBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Feedback messages ---------------------------------------------------------- */
+
+.success {
+  margin-top: 1rem;
+  color: #16a34a;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.error {
+  margin-top: 1rem;
+  color: #dc2626;
+  font-size: 0.875rem;
+}

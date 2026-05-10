@@ -205,3 +205,21 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+
+# Claude
+CLAUDE.md
+.superpowers/
+
+# Git worktrees
+.worktrees/
+
+# Docker local state
+deployment/docker/.env
+deployment/docker/data/
+
+# Node / SPA
+node_modules/
+src/frontend/web/dist/
+
+# docs -> documentation
+docs/

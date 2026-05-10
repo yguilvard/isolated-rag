@@ -1,0 +1,29 @@
+ingestion:
+  embedding_model: bge-m3
+  chunk_sentences: 5
+  ollama_url: http://localhost:11434
+  min_relevance_score: 0.55
+
+chat_providers:
+  - id: llama3.2
+    label: "LLaMA 3.2"
+    model: llama3.2
+    ollama_url: http://localhost:11434
+  - id: mistral
+    label: "Mistral 7B"
+    model: mistral
+    ollama_url: http://localhost:11434
+
+database:
+  host: localhost
+  port: 5432
+  name: rag_db
+  user: rag
+  password: ""
+
+api:
+  secret_key: ""          # set via API__SECRET_KEY env var
+  algorithm: HS256
+  token_expire_minutes: 60
+  host: 0.0.0.0
+  port: 8000

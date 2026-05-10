@@ -1,0 +1,7 @@
+Context extracted from documents:
+{% for chunk in chunks %}
+[{{ chunk.document }} — chunk #{{ chunk.chunk_index }}]
+{{ chunk.content }}
+
+{% endfor %}
+Question: {{ query }}
